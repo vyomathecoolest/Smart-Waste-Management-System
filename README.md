@@ -28,7 +28,9 @@ This is how the folder should look after running the scripts:
 │                   ├── ...
 │                   └── R_4321.jpg
 ├── model.py
+├── README.md
 └── real_time.py
+
 ```
 
 Link to archive.zip: [archive.zip](https://drive.google.com/file/d/1G1HMtq8mg4_xQY4SbN5i7BoKBeFNIxB7/view?usp=drive_link)
