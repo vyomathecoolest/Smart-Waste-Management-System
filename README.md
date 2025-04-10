@@ -1,4 +1,4 @@
-# Untitled
+# Smart Waste Management System 
 
 This is how the folder should look after running the scripts:
 
