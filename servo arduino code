@@ -1,0 +1,28 @@
+
+#include <ESP32Servo.h>
+
+Servo myServo;
+#define SERVO_PIN 18  // Use appropriate PWM pin for ESP32 (e.g., 18)
+
+void setup() {
+  Serial.begin(9600);
+  myServo.attach(SERVO_PIN);
+  myServo.write(0); // Center the servo at 0° (logical center)
+}
+
+void loop() {
+  if (Serial.available()) {
+    char command = Serial.read();
+
+    if (command == '1') {
+      myServo.write(45);   // Move to 45° (left position)
+      delay(1000);          // Wait for 1 second
+      myServo.write(0);    // Back to center (0°)
+    }
+    else if (command == '2') {
+      myServo.write(135);  // Move to 135° (right position)
+      delay(1000);          // Wait for 1 second
+      myServo.write(0);    // Back to center (0°)
+    }
+  }
+}
