@@ -1,0 +1,93 @@
+import cv2
+import torch
+import torchvision
+import torchvision.transforms as transforms
+import torch.nn as nncc 
+from PIL import Image
+import numpy as np
+import serial
+import time
+
+# ----------------- Model Architecture -----------------
+class EfficientNetV2Lite(nn.Module):
+    def __init__(self, num_classes):
+        super(EfficientNetV2Lite, self).__init__()
+        self.features = torchvision.models.efficientnet_v2_s(
+            weights=torchvision.models.EfficientNet_V2_S_Weights.DEFAULT
+        ).features
+        self.avgpool = nn.AdaptiveAvgPool2d((1, 1))
+        self.classifier = nn.Sequential(
+            nn.Dropout(0.2),
+            nn.Linear(1280, num_classes)
+        )
+
+    def forward(self, x):
+        x = self.features(x)
+        x = self.avgpool(x)
+        x = torch.flatten(x, 1)
+        x = self.classifier(x)
+        return x
+
+# ----------------- Load Model -----------------
+inference_transform = transforms.Compose([
+    transforms.Resize((224, 224)),
+    transforms.ToTensor(),
+    transforms.Normalize(mean=[0.485, 0.456, 0.406],
+                         std=[0.229, 0.224, 0.225])
+])
+
+num_classes = 2
+device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+model = EfficientNetV2Lite(num_classes=num_classes)
+model.load_state_dict(torch.load('best_model.pth', map_location=device))
+model.to(device)
+model.eval()
+
+class_map = {0: "O", 1: "R"}  # Organic / Recyclable
+
+# ----------------- Serial to ESP32 -----------------
+esp = serial.Serial('COM12', 9600)  # Change to your correct port!
+time.sleep(2)  # Let ESP32 reset
+
+# ----------------- Webcam & Inference -----------------
+cap = cv2.VideoCapture(0)
+print("Press 'c' to capture for classification, 'q' to quit.")
+
+while True:
+    ret, frame = cap.read()
+    if not ret:
+        print("Webcam error!")
+        break
+
+    cv2.imshow("Live Feed", frame)
+    key = cv2.waitKey(1)
+
+    if key % 256 == ord('c'):
+        image_rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+        pil_img = Image.fromarray(image_rgb)
+        input_tensor = inference_transform(pil_img).unsqueeze(0).to(device)
+
+        with torch.no_grad():
+            outputs = model(input_tensor)
+            _, preds = torch.max(outputs, 1)
+
+        pred_class = preds.item()
+        result = class_map.get(pred_class, "Unknown")
+        print(f"Prediction: {result}")
+
+        if result == "R":
+            esp.write(b'1')  # Recyclable → move servo
+        elif result == "O":
+            esp.write(b'2')  # Organic → move servo
+
+        cv2.putText(frame, f"Prediction: {result}", (10, 30),
+                    cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2)
+        cv2.imshow("Captured", frame)
+        cv2.waitKey(2000)
+
+    elif key % 256 == ord('q'):
+        print("Exiting...")
+        break
+
+cap.release()
+cv2.destroyAllWindows()
