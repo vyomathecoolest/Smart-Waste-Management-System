@@ -38,3 +38,5 @@ Link to archive.zip: [archive.zip](https://drive.google.com/file/d/1G1HMtq8mg4_x
 Link to best_model.pth: [best_model.pth](https://drive.google.com/file/d/1RDETK8O567A11lZDuDLZq1cjHvrna4LE/view?usp=sharing)
 
 Link to final_model.pth: [final_model.pth](https://drive.google.com/file/d/102uie5audw1VXmVZj4goYVR_RVh_Qheq/view?usp=sharing)
+
+Here is the link to our report: [Final Report](https://docs.google.com/document/d/1zDR1rbTScoXvg2am_SmCeLyNKeN_N6nu4kNIApXNfSY/edit?usp=sharing)
