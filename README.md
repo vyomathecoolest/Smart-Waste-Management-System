@@ -1,6 +1,7 @@
 # Smart Waste Management System 
 
 Aim: To design and implement an automated system that classifies and segregates waste into organic and non-organic categories using computer vision and embedded hardware, with the goal of improving the efficiency, hygiene, and sustainability of urban waste management.
+
 ![image](https://github.com/user-attachments/assets/29cec101-32b7-416e-8c27-45de867e41a8)
 
 
